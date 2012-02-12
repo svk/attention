@@ -34,9 +34,18 @@ def pretty_stringify_mail( headers ):
 def pretty_print_mail( headers ):
     print pretty_stringify_mail( headers )
 
+sms_sanity_countdown = 10 # must start program again.. can't even successfully send this many messages in 1 day
+
 def gulesider_sms_mail( headers ):
+    global sms_sanity_countdown
     from gulesider import send_sms
-    send_sms( pretty_stringify_mail( headers ) )
+    message = pretty_stringify_mail( headers )
+    if sms_sanity_countdown <= 0:
+        print >> sys.stderr, "[gulesider_sms_mail] will not send SMS '%s', too many sent already" % message
+    else:
+        sms_sanity_countdown -= 1
+        print >> sys.stderr, "[gulesider_sms_mail] sending SMS '%s', left until restart required: %d" % (message, sms_sanity_countdown)
+        send_sms( message )
 
 def print_mail( headers ):
     subject = headers["Subject"].replace("'", "\"")
