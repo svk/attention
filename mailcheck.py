@@ -47,6 +47,17 @@ def gulesider_sms_mail( headers ):
         print >> sys.stderr, "[gulesider_sms_mail] sending SMS '%s', left until restart required: %d" % (message, sms_sanity_countdown)
         send_sms( message )
 
+def gulesider_sms_mail_noinfo( headers ):
+    global sms_sanity_countdown
+    from gulesider import send_sms
+    message = "New mail has arrived in inbox"
+    if sms_sanity_countdown <= 0:
+        print >> sys.stderr, "[gulesider_sms_mail_noinfo] will not send SMS '%s', too many sent already" % message
+    else:
+        sms_sanity_countdown -= 1
+        print >> sys.stderr, "[gulesider_sms_mail_noinfo] sending SMS '%s', left until restart required: %d" % (message, sms_sanity_countdown)
+        send_sms( message )
+
 def print_mail( headers ):
     subject = headers["Subject"].replace("'", "\"")
     sender = headers["From"].replace("'", "\"")
@@ -94,7 +105,7 @@ def check_mail_loop( interval, config, function, delete = True, verbose = True )
 
 def read_filters( filename, verbose = True ):
     blessed = "action", "subject", "sender"
-    functions = { "print" : pretty_print_mail, "gulesider-sms" : gulesider_sms_mail }
+    functions = { "print" : pretty_print_mail, "gulesider-sms-info" : gulesider_sms_mail, "gulesider-sms-noinfo" : gulesider_sms_mail_noinfo }
     kwargs = {}
     rv = []
     with open( filename, "r" ) as f:
