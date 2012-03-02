@@ -1,0 +1,4 @@
+#!/usr/bin/python
+from gulesider import send_sms
+from sys import argv
+send_sms( "[notify]" + " ".join( argv[1:] ) )
