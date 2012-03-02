@@ -1,5 +1,7 @@
 from __future__ import with_statement
 
+from time import gmtime, strftime
+
 import re
 import sys
 
@@ -100,7 +102,8 @@ def check_mail_loop( interval, config, function, delete = True, verbose = True )
     while True:
         time.sleep( interval )
         if verbose:
-            print >> sys.stderr, "[check_mail_loop] checking mail (interval of %f seconds)" % interval
+            dateline = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+            print >> sys.stderr, "[check_mail_loop %s] checking mail (interval of %f seconds)" % (dateline,interval)
         check_mail( config, function, delete = delete )
 
 def read_filters( filename, verbose = True ):
@@ -116,7 +119,8 @@ def read_filters( filename, verbose = True ):
             if line == "!":
                 rv.append( MailFilter( **kwargs ) )
                 if verbose:
-                    print >> sys.stderr, "Loaded filter: ", kwargs
+                    print >> sys.stderr, "Loaded filter."
+#                    print >> sys.stderr, "Loaded filter: ", kwargs
                 kwargs = {}
             else:
                 name, content = line.split( " ", 1 )
@@ -133,6 +137,6 @@ def read_filters( filename, verbose = True ):
 if __name__ == '__main__':
     config = "forwarded-mail.cfg"
     filterfile = "mailcheck.filters"
-    interval = 60 # a minute
+    interval = 120 # two minutes
     filters = read_filters( filterfile )
     check_mail_loop( interval, config, filters, delete = True )
